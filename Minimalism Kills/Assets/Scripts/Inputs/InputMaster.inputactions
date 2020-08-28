@@ -175,6 +175,44 @@
                     "action": "Reset Level",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e22e7df5-c082-49cc-a376-80d4381aae78",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Reset Level",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "Text",
+            "id": "4c4779cd-d699-4f6b-ab51-0a7f07b83140",
+            "actions": [
+                {
+                    "name": "Advance",
+                    "type": "Button",
+                    "id": "a20d68dc-b7ef-4acf-99db-60d670a7b729",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "4bc58b6d-879e-4220-887d-17e3278c8405",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Advance",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         }

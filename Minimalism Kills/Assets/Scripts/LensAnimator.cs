@@ -14,16 +14,18 @@ public class LensAnimator : MonoBehaviour
     public Transform coolCircle3;
 
     // Movement
-    const float LARGE_SCALE = 2.4f;
+    float largeScale = 1f;
     const float SHRINK_SPEED = 1;
     const float SMOOTHNESS = 10;
     const float LENS_DIST_FROM_PLAYER = 8;
 
-    Vector3 goToPosition;
-    Vector3 eyeLoc = new Vector3(0, 2.4f);
+    Vector2 goToPosition;
+    Vector2 eyeLoc = new Vector2(0, 2.4f);
     float goToScale = 0;
 
     InputMaster lensControls;
+
+    bool fullVision;
 
     #region Setting inputs
 
@@ -56,7 +58,7 @@ public class LensAnimator : MonoBehaviour
     void MoveLens(Vector2 lensDirection)
     {
         goToPosition = (Vector3)lensDirection * LENS_DIST_FROM_PLAYER;
-        goToScale = LARGE_SCALE;
+        goToScale = largeScale;
     }
 
     // Returns lens to idle position
@@ -66,13 +68,26 @@ public class LensAnimator : MonoBehaviour
         goToScale = 0;
     }
 
+    public void SetLensSize(float lensSize)
+    {
+        largeScale = lensSize;
+    }
+
+    public void FullVisionTrue()
+    {
+        fullVision = true;
+        lensControls.Lens.Disable();
+        transform.localScale = Vector2.one * 9999;
+        transform.localPosition = Vector2.zero;
+    }
+
     // Animates lens shrinking and moving smoothly
     IEnumerator LensMover()
     {
-        while (true)
+        while (!fullVision)
         {
-            transform.localPosition = goToPosition + (transform.localPosition - goToPosition) / SMOOTHNESS * (SMOOTHNESS - 1);
-            goToScale = Mathf.Clamp(goToScale - SHRINK_SPEED / 100.0f, 0, LARGE_SCALE);
+            transform.localPosition = goToPosition + ((Vector2)transform.localPosition - goToPosition) / SMOOTHNESS * (SMOOTHNESS - 1);
+            goToScale = Mathf.Clamp(goToScale - SHRINK_SPEED / 100.0f, 0, largeScale);
             transform.localScale = Vector3.one * (goToScale + (transform.localScale.x - goToScale) / SMOOTHNESS * (SMOOTHNESS - 1));
             yield return new WaitForSecondsRealtime(0.01f);
         }
@@ -81,7 +96,7 @@ public class LensAnimator : MonoBehaviour
     // Rotates cool circles for the cool effect
     IEnumerator RotateCircles()
     {
-        while (true)
+        while (!fullVision)
         {
             coolCircle1.Rotate(Vector3.forward, SPEED_1);
             coolCircle2.Rotate(Vector3.forward, SPEED_2);

@@ -28,7 +28,6 @@ public class PlayerController : MonoBehaviour
     int glassesFound = 0;
 
     // Explosions
-    const float lengthOfExplosion = 0.5f;
     public GameObject explosion;
 
     // Sounds
@@ -36,6 +35,9 @@ public class PlayerController : MonoBehaviour
     public Sound jumpSound;
     float walkingMaxVolume;
     //Coroutine walkingSoundOutFader;
+
+    // Disabled
+    bool disabled;
 
     // Initializing instance variables
     private void Awake()
@@ -85,20 +87,23 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        // Horizontal movement
-        if (curDirection != 0)
-            rb.velocity = new Vector2(curDirection * speed, rb.velocity.y);
-        else if (onGround)
-            rb.velocity = new Vector2(0, rb.velocity.y);
-        animator.SetBool("Walking", curDirection != 0 && onGround);
+        if (!disabled)
+        {
+            // Horizontal movement
+            if (curDirection != 0)
+                rb.velocity = new Vector2(curDirection * speed, rb.velocity.y);
+            else if (onGround)
+                rb.velocity = new Vector2(0, rb.velocity.y);
+            animator.SetBool("Walking", curDirection != 0 && onGround);
 
-        // Jumping
-        if (!pressingJumpButton)
-            rb.gravityScale = 2.8f;
-        else if (rb.velocity.y > 0)
-            rb.gravityScale = 1;
-        else
-            rb.gravityScale = 2.5f;
+            // Jumping
+            if (!pressingJumpButton)
+                rb.gravityScale = 2.8f;
+            else if (rb.velocity.y > 0)
+                rb.gravityScale = 1;
+            else
+                rb.gravityScale = 2.5f;
+        }
 
         // Sounds
         if (curDirection != 0 && onGround)
@@ -114,19 +119,12 @@ public class PlayerController : MonoBehaviour
     {
         spriteRenderer.flipX = direction < 0;
         curDirection = direction;
-        //if (walkingSoundOutFader != null)
-        //{
-            //StopCoroutine(walkingSoundOutFader);
-            //walkingSoundOutFader = null;
-        //}
     }
 
     // Stops player movement
     void StoppedMoving()
     {
         curDirection = 0;
-        /*if (walkingSoundOutFader == null)
-            walkingSoundOutFader = StartCoroutine(FadeOutWalkingSound());*/
     }
 
     /* Returns true if player is on ground
@@ -144,7 +142,7 @@ public class PlayerController : MonoBehaviour
     // Tries to jump if player on ground
     void Jump()
     {
-        if (IsGrounded())
+        if (IsGrounded() && !disabled)
         {
             jumpSound.audioSource.Play();
             pressingJumpButton = true;
@@ -162,10 +160,24 @@ public class PlayerController : MonoBehaviour
     /* Updates number of glasses found
      * @param numGlasses number of glasses found
      */
-    void SetNumGlasses(int numGlasses)
+    public void SetNumGlasses(int numGlasses)
     {
         glassesFound = numGlasses;
         animator.SetInteger("Num Glasses", numGlasses);
+    }
+
+    /* Sets disable status
+     * @param disableStatus what to set disabled to
+     */
+    public void SetDisable(bool disableStatus)
+    {
+        if (disableStatus)
+        {
+            animator.SetBool("Walking", false);
+            animator.SetBool("Jumping", false);
+            rb.velocity = new Vector2(0, rb.velocity.y);
+        }
+        disabled = disableStatus;
     }
 
     // Called when player is killed
@@ -176,15 +188,4 @@ public class PlayerController : MonoBehaviour
         explosion.transform.parent = null;
         Destroy(this.gameObject);
     }
-
-    /*IEnumerator FadeOutWalkingSound()
-    {
-        while (walkingSound.audioSource.volume > 0)
-        {
-            print("FADING");
-            Mathf.Clamp(walkingSound.audioSource.volume -= 0.1f, 0, walkingMaxVolume);
-            yield return new WaitForSecondsRealtime(0.01f);
-        }
-        walkingSoundOutFader = null;
-    }*/
 }

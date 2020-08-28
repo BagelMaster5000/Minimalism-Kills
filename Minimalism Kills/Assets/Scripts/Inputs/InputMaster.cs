@@ -1,4 +1,4 @@
-// GENERATED AUTOMATICALLY FROM 'Assets/InputMaster.inputactions'
+// GENERATED AUTOMATICALLY FROM 'Assets/Scripts/Inputs/InputMaster.inputactions'
 
 using System;
 using System.Collections;
@@ -188,6 +188,44 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""action"": ""Reset Level"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e22e7df5-c082-49cc-a376-80d4381aae78"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Reset Level"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
+        },
+        {
+            ""name"": ""Text"",
+            ""id"": ""4c4779cd-d699-4f6b-ab51-0a7f07b83140"",
+            ""actions"": [
+                {
+                    ""name"": ""Advance"",
+                    ""type"": ""Button"",
+                    ""id"": ""a20d68dc-b7ef-4acf-99db-60d670a7b729"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""4bc58b6d-879e-4220-887d-17e3278c8405"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Advance"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -204,6 +242,9 @@ public class @InputMaster : IInputActionCollection, IDisposable
         // GameController
         m_GameController = asset.FindActionMap("GameController", throwIfNotFound: true);
         m_GameController_ResetLevel = m_GameController.FindAction("Reset Level", throwIfNotFound: true);
+        // Text
+        m_Text = asset.FindActionMap("Text", throwIfNotFound: true);
+        m_Text_Advance = m_Text.FindAction("Advance", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -356,6 +397,39 @@ public class @InputMaster : IInputActionCollection, IDisposable
         }
     }
     public GameControllerActions @GameController => new GameControllerActions(this);
+
+    // Text
+    private readonly InputActionMap m_Text;
+    private ITextActions m_TextActionsCallbackInterface;
+    private readonly InputAction m_Text_Advance;
+    public struct TextActions
+    {
+        private @InputMaster m_Wrapper;
+        public TextActions(@InputMaster wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Advance => m_Wrapper.m_Text_Advance;
+        public InputActionMap Get() { return m_Wrapper.m_Text; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(TextActions set) { return set.Get(); }
+        public void SetCallbacks(ITextActions instance)
+        {
+            if (m_Wrapper.m_TextActionsCallbackInterface != null)
+            {
+                @Advance.started -= m_Wrapper.m_TextActionsCallbackInterface.OnAdvance;
+                @Advance.performed -= m_Wrapper.m_TextActionsCallbackInterface.OnAdvance;
+                @Advance.canceled -= m_Wrapper.m_TextActionsCallbackInterface.OnAdvance;
+            }
+            m_Wrapper.m_TextActionsCallbackInterface = instance;
+            if (instance != null)
+            {
+                @Advance.started += instance.OnAdvance;
+                @Advance.performed += instance.OnAdvance;
+                @Advance.canceled += instance.OnAdvance;
+            }
+        }
+    }
+    public TextActions @Text => new TextActions(this);
     public interface IPlayerActions
     {
         void OnMovement(InputAction.CallbackContext context);
@@ -368,5 +442,9 @@ public class @InputMaster : IInputActionCollection, IDisposable
     public interface IGameControllerActions
     {
         void OnResetLevel(InputAction.CallbackContext context);
+    }
+    public interface ITextActions
+    {
+        void OnAdvance(InputAction.CallbackContext context);
     }
 }
