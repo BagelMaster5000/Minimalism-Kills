@@ -39,6 +39,9 @@ public class PlayerController : MonoBehaviour
     // Disabled
     bool disabled;
 
+    // Checkpoints
+    Vector2 spawnLoc;
+
     // Initializing instance variables
     private void Awake()
     {
@@ -65,6 +68,9 @@ public class PlayerController : MonoBehaviour
         controls.Player.Jump.performed += ctx => Jump();
         controls.Player.Jump.canceled += ctx => StoppedJumping();
         controls.Player.Enable();
+
+        // SpawnLoc
+        spawnLoc = transform.position;
     }
 
     // Disables controls when the script is disabled
@@ -180,12 +186,15 @@ public class PlayerController : MonoBehaviour
         disabled = disableStatus;
     }
 
+    public void SetSpawnLoc(Transform tempSpawnLoc) { spawnLoc = tempSpawnLoc.position; }
+
     // Called when player is killed
     public void Kill()
     {
         explosion.SetActive(true);
         explosion.GetComponent<Explosion>().StartExplosion(0.5f);
         explosion.transform.parent = null;
-        Destroy(this.gameObject);
+        transform.position = spawnLoc;
+        //Destroy(this.gameObject);
     }
 }

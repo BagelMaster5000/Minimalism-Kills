@@ -5,6 +5,8 @@ public class Explosion : MonoBehaviour
 {
     const float DELAY_UNTIL_RESTART = 0.5f;
 
+    public Sprite explosionSprite;
+
     public Sound explosionSound;
 
     // Initializing variables
@@ -20,11 +22,12 @@ public class Explosion : MonoBehaviour
      */
     public void StartExplosion(float lengthOfExplosion)
     {
+        GetComponent<SpriteRenderer>().sprite = explosionSprite;
         explosionSound.audioSource.Play();
         StartCoroutine(ShowExplosion(lengthOfExplosion));
     }
 
-    /* Shows explosion and then restarts
+    /* Shows explosion
      * @param lengthOfExplosion how long to show explosion on screen for
      */
     IEnumerator ShowExplosion(float lengthOfExplosion)
@@ -32,7 +35,9 @@ public class Explosion : MonoBehaviour
         yield return new WaitForSecondsRealtime(lengthOfExplosion);
         GetComponent<SpriteRenderer>().sprite = null;
         yield return new WaitForSecondsRealtime(DELAY_UNTIL_RESTART);
-        GlobalVariables.coinsFound = 0;
-        FindObjectOfType<NextSceneFader>().Restart();
+        transform.parent = FindObjectOfType<PlayerController>().gameObject.transform;
+        transform.localPosition = Vector2.zero;
+        //GlobalVariables.coinsFound = 0;
+        //FindObjectOfType<NextSceneFader>().Restart();
     }
 }
