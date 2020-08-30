@@ -23,6 +23,10 @@ public class LensAnimator : MonoBehaviour
     Vector2 eyeLoc = new Vector2(0, 2.4f);
     float goToScale = 0;
 
+    // Sounds
+    public Sound look;
+    public Sound unlook;
+
     InputMaster lensControls;
 
     bool fullVision;
@@ -32,6 +36,14 @@ public class LensAnimator : MonoBehaviour
     // Initializes variables
     private void Awake()
     {
+        // Sounds
+        look.audioSource = gameObject.AddComponent<AudioSource>();
+        look.audioSource.clip = look.audioClip;
+        look.audioSource.volume = look.volume;
+        unlook.audioSource = gameObject.AddComponent<AudioSource>();
+        unlook.audioSource.clip = unlook.audioClip;
+        unlook.audioSource.volume = unlook.volume;
+
         lensControls = new InputMaster();
         lensControls.Lens.LensMovement.performed += ctx => MoveLens(ctx.ReadValue<Vector2>());
         lensControls.Lens.LensMovement.canceled += ctx => ReturnLens();
@@ -59,6 +71,7 @@ public class LensAnimator : MonoBehaviour
     {
         goToPosition = (Vector3)lensDirection * LENS_DIST_FROM_PLAYER;
         goToScale = largeScale;
+        look.audioSource.Play();
     }
 
     // Returns lens to idle position
@@ -66,6 +79,7 @@ public class LensAnimator : MonoBehaviour
     {
         goToPosition = eyeLoc;
         goToScale = 0;
+        unlook.audioSource.Play();
     }
 
     public void SetLensSize(float lensSize)

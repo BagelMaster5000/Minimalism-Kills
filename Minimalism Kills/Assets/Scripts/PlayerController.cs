@@ -33,6 +33,8 @@ public class PlayerController : MonoBehaviour
     // Sounds
     public Sound walkingSound;
     public Sound jumpSound;
+    public Sound glassesSound;
+    public Sound passFlag;
     float walkingMaxVolume;
     //Coroutine walkingSoundOutFader;
 
@@ -61,6 +63,12 @@ public class PlayerController : MonoBehaviour
         jumpSound.audioSource = gameObject.AddComponent<AudioSource>();
         jumpSound.audioSource.clip = jumpSound.audioClip;
         jumpSound.audioSource.volume = jumpSound.volume;
+        glassesSound.audioSource = gameObject.AddComponent<AudioSource>();
+        glassesSound.audioSource.clip = glassesSound.audioClip;
+        glassesSound.audioSource.volume = glassesSound.volume;
+        passFlag.audioSource = gameObject.AddComponent<AudioSource>();
+        passFlag.audioSource.clip = passFlag.audioClip;
+        passFlag.audioSource.volume = passFlag.volume;
 
         // Inputs
         controls.Player.Movement.performed += ctx => SetDirection(ctx.ReadValue<float>());
@@ -170,6 +178,7 @@ public class PlayerController : MonoBehaviour
     {
         glassesFound = numGlasses;
         animator.SetInteger("Num Glasses", numGlasses);
+        glassesSound.audioSource.Play();
     }
 
     /* Sets disable status
@@ -186,7 +195,14 @@ public class PlayerController : MonoBehaviour
         disabled = disableStatus;
     }
 
-    public void SetSpawnLoc(Transform tempSpawnLoc) { spawnLoc = tempSpawnLoc.position; }
+    /* Sets spawn location of player
+     * @param tempSpawnLoc What to set the spawn location to
+     */
+    public void SetSpawnLoc(Transform tempSpawnLoc)
+    {
+        spawnLoc = tempSpawnLoc.position;
+        passFlag.audioSource.Play();
+    }
 
     // Called when player is killed
     public void Kill()
