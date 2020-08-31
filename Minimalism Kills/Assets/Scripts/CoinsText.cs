@@ -1,6 +1,7 @@
 ﻿using TMPro;
 using UnityEngine;
 
+// Controls coins text
 [RequireComponent(typeof(TextMeshProUGUI))]
 public class CoinsText : MonoBehaviour
 {

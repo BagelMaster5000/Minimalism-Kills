@@ -124,7 +124,7 @@ Material:
     - _TextureHeight: 1024
     - _TextureWidth: 1024
     - _UnderlayDilate: 0.587
-    - _UnderlayOffsetX: -0.162
+    - _UnderlayOffsetX: 0.162
     - _UnderlayOffsetY: -0.093
     - _UnderlaySoftness: 0
     - _VertexOffsetX: 0
@@ -141,7 +141,7 @@ Material:
     - _ReflectFaceColor: {r: 0, g: 0, b: 0, a: 1}
     - _ReflectOutlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
-    - _UnderlayColor: {r: 1, g: 0.5058824, b: 0.25882354, a: 0.9019608}
+    - _UnderlayColor: {r: 1, g: 0.30980393, b: 0.4117647, a: 1}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -152,9 +152,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 71c1514a6bd24e1e882cebbe1904ce04, type: 3}
-  m_Name: Coins Text
+  m_Name: Deaths Text
   m_EditorClassIdentifier: 
-  hashCode: -484989979
+  hashCode: -889102606
   material: {fileID: -1229008703847709611}
   materialHashCode: 1576749824
   m_Version: 1.1.0

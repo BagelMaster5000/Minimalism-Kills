@@ -16,16 +16,22 @@ public class PlayerController : MonoBehaviour
     SpriteRenderer spriteRenderer;
 
     // Movement
-    float curDirection;
+    const float GROUND_TOUCH_ADJUSTMENT = 0.5f;
+    const float GROUND_CHECK_JUMP_DELAY = 0.2f;
     float groundCheckDis = 0.05f;
-    float speed = 5;
+    Coroutine cr_moving;
     bool pressingJumpButton = false;
     bool onGround = true;
     float onGroundCheckDelayer;
-    float onGroundCheckDelay = 0.2f;
+    Coroutine cr_jumping;
+    //const float SPRINTING_SPEED_MULTIPLIER = 1.4f;
+    float speed = 5;
+    //bool sprinting;
+    //const float CROUCHING_SPEED_MULTIPLIER = 0.7f;
+    //bool crouching;
 
-    // Num glasses
-    int glassesFound = 0;
+    // Glasses
+    int numGlasses;
 
     // Explosions
     public GameObject explosion;
@@ -36,7 +42,6 @@ public class PlayerController : MonoBehaviour
     public Sound glassesSound;
     public Sound passFlag;
     float walkingMaxVolume;
-    //Coroutine walkingSoundOutFader;
 
     // Disabled
     bool disabled;
@@ -71,10 +76,20 @@ public class PlayerController : MonoBehaviour
         passFlag.audioSource.volume = passFlag.volume;
 
         // Inputs
-        controls.Player.Movement.performed += ctx => SetDirection(ctx.ReadValue<float>());
-        controls.Player.Movement.canceled += ctx => StoppedMoving();
-        controls.Player.Jump.performed += ctx => Jump();
-        controls.Player.Jump.canceled += ctx => StoppedJumping();
+        controls.Player.Movement.performed += ctx => cr_moving = StartCoroutine(Move(ctx.ReadValue<float>()));
+        controls.Player.Movement.canceled += ctx => StopCoroutine(cr_moving);
+        controls.Player.Movement.canceled += ctx => rb.velocity = new Vector2(0,rb.velocity.y);
+        controls.Player.Movement.canceled += ctx => animator.SetBool("Walking", false);
+        controls.Player.Movement.canceled += ctx => walkingSound.audioSource.volume = 0;
+        controls.Player.Jump.performed += ctx => cr_jumping = StartCoroutine(Jump());
+        controls.Player.Jump.canceled += ctx => StopCoroutine(cr_jumping);
+        controls.Player.Jump.canceled += ctx => rb.gravityScale = 2.8f;
+        /*controls.Player.Sprint.performed += ctx => sprinting = true;
+        controls.Player.Sprint.canceled += ctx => sprinting = false;
+        controls.Player.Crouch.performed += ctx => crouching = true;
+        controls.Player.Crouch.canceled += ctx => crouching = false;*/
+
+
         controls.Player.Enable();
 
         // SpawnLoc
@@ -85,99 +100,21 @@ public class PlayerController : MonoBehaviour
     private void OnDisable() { controls.Player.Disable(); }
 
     // Setting frame rate
-    private void Start() { Application.targetFrameRate = 60; }
-
-    // Movement and jumping
-    private void Update()
+    private void Start()
     {
-        // Checking when player has returned to ground
-        if (!onGround && Time.time > onGroundCheckDelayer)
-        {
-            IsGrounded();
-            if (onGround)
-            {
-                animator.SetBool("Jumping", false);
-                transform.position += Vector3.up * 0.5f;
-            }
-        }
+        Application.targetFrameRate = 60;
 
-        if (!disabled)
-        {
-            // Horizontal movement
-            if (curDirection != 0)
-                rb.velocity = new Vector2(curDirection * speed, rb.velocity.y);
-            else if (onGround)
-                rb.velocity = new Vector2(0, rb.velocity.y);
-            animator.SetBool("Walking", curDirection != 0 && onGround);
-
-            // Jumping
-            if (!pressingJumpButton)
-                rb.gravityScale = 2.8f;
-            else if (rb.velocity.y > 0)
-                rb.gravityScale = 1;
-            else
-                rb.gravityScale = 2.5f;
-        }
-
-        // Sounds
-        if (curDirection != 0 && onGround)
-            walkingSound.audioSource.volume = walkingMaxVolume;
-        else
-            walkingSound.audioSource.volume = 0;
+        StartCoroutine(OnGroundChecker());
     }
-
-    /* Sets current direction player is moving
-     * @param direction current direction player is moving. Given by horizontal input
-     */
-    void SetDirection(float direction)
-    {
-        spriteRenderer.flipX = direction < 0;
-        curDirection = direction;
-    }
-
-    // Stops player movement
-    void StoppedMoving()
-    {
-        curDirection = 0;
-    }
-
-    /* Returns true if player is on ground
-     * @return bool true if player is on ground
-     */
-    bool IsGrounded()
-    {
-        onGround = Physics2D.BoxCast(
-            boxCollider.bounds.center, boxCollider.bounds.size, 0f, 
-            Vector2.down,
-            groundCheckDis).collider != null;
-        return onGround;
-    }
-
-    // Tries to jump if player on ground
-    void Jump()
-    {
-        if (IsGrounded() && !disabled)
-        {
-            jumpSound.audioSource.Play();
-            pressingJumpButton = true;
-            rb.AddForce(Vector2.up * 3000);
-            rb.velocity += Vector2.up * 4;
-            animator.SetBool("Jumping", true);
-            onGround = false;
-            onGroundCheckDelayer = Time.time + onGroundCheckDelay;
-        }
-    }
-
-    // Player has released jump button
-    void StoppedJumping() { pressingJumpButton = false; }
 
     /* Updates number of glasses found
      * @param numGlasses number of glasses found
      */
     public void SetNumGlasses(int numGlasses)
     {
-        glassesFound = numGlasses;
-        animator.SetInteger("Num Glasses", numGlasses);
+        if (numGlasses > this.numGlasses)
+            animator.SetInteger("Num Glasses", numGlasses);
+        this.numGlasses = numGlasses;
         glassesSound.audioSource.Play();
     }
 
@@ -211,6 +148,85 @@ public class PlayerController : MonoBehaviour
         explosion.GetComponent<Explosion>().StartExplosion(0.5f);
         explosion.transform.parent = null;
         transform.position = spawnLoc;
-        //Destroy(this.gameObject);
+        FindObjectOfType<DeathsText>().AddDeath();
+    }
+
+    // Moving player left/right
+    IEnumerator Move(float direction)
+    {
+        while (true)
+        {
+            while (disabled)
+                yield return null;
+
+            // Horizontal movement
+            spriteRenderer.flipX = direction < 0;
+            if (direction != 0)
+            {
+                /*if (crouching)
+                    rb.velocity = new Vector2(direction * speed * CROUCHING_SPEED_MULTIPLIER, rb.velocity.y);
+                else if (sprinting)
+                    rb.velocity = new Vector2(direction * speed * SPRINTING_SPEED_MULTIPLIER, rb.velocity.y);
+                else*/
+                    rb.velocity = new Vector2(direction * speed, rb.velocity.y);
+            }
+            else if (onGround)
+                rb.velocity = new Vector2(0, rb.velocity.y);
+            animator.SetBool("Walking", direction != 0 && onGround);
+
+            // Sounds
+            if (direction != 0 && onGround)// && !crouching)
+                walkingSound.audioSource.volume = walkingMaxVolume;
+            else
+                walkingSound.audioSource.volume = 0;
+            yield return null;
+        }
+    }
+
+    IEnumerator Jump()
+    {
+        while (!onGround || disabled)
+            yield return null;
+
+        jumpSound.audioSource.Play();
+        pressingJumpButton = true;
+        rb.AddForce(Vector2.up * 3000);
+        rb.velocity += Vector2.up * 4;
+        animator.SetBool("Jumping", true);
+        animator.SetBool("Walking", false);
+        onGround = false;
+        onGroundCheckDelayer = Time.time + GROUND_CHECK_JUMP_DELAY;
+
+        while (true)
+        {
+            if (!pressingJumpButton)
+                rb.gravityScale = 2.8f;
+            else if (rb.velocity.y > 0)
+                rb.gravityScale = 1;
+            else
+                rb.gravityScale = 2.5f;
+            yield return null;
+        }
+    }
+
+    IEnumerator OnGroundChecker()
+    {
+        while (true)
+        {
+            // Checking when player has returned to ground
+            if (!onGround && Time.time > onGroundCheckDelayer)
+            {
+                onGround = Physics2D.BoxCast(
+                    boxCollider.bounds.center, boxCollider.bounds.size, 0f,
+                    Vector2.down,
+                    groundCheckDis).collider != null;
+                if (onGround)
+                {
+                    animator.SetBool("Jumping", false);
+                    transform.position += Vector3.up * GROUND_TOUCH_ADJUSTMENT;
+                }
+            }
+            yield return new WaitForEndOfFrame();
+        }
     }
 }
