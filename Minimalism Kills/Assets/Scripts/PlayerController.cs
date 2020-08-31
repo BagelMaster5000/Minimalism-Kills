@@ -185,8 +185,9 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator Jump()
     {
-        while (!onGround || disabled)
-            yield return null;
+        if (!onGround || disabled)
+            while (true)
+                yield return null;
 
         jumpSound.audioSource.Play();
         pressingJumpButton = true;
