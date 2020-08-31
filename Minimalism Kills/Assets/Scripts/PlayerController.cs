@@ -179,7 +179,7 @@ public class PlayerController : MonoBehaviour
                 walkingSound.audioSource.volume = walkingMaxVolume;
             else
                 walkingSound.audioSource.volume = 0;
-            yield return null;
+            yield return new WaitForFixedUpdate();
         }
     }
 
