@@ -78,7 +78,7 @@ public class PlayerController : MonoBehaviour
         // Inputs
         controls.Player.Movement.performed += ctx => cr_moving = StartCoroutine(Move(ctx.ReadValue<float>()));
         controls.Player.Movement.canceled += ctx => StopCoroutine(cr_moving);
-        controls.Player.Movement.canceled += ctx => rb.velocity = new Vector2(0,rb.velocity.y);
+        controls.Player.Movement.canceled += ctx => StopIfOnGround();
         controls.Player.Movement.canceled += ctx => animator.SetBool("Walking", false);
         controls.Player.Movement.canceled += ctx => walkingSound.audioSource.volume = 0;
         controls.Player.Jump.performed += ctx => cr_jumping = StartCoroutine(Jump());
@@ -105,6 +105,12 @@ public class PlayerController : MonoBehaviour
         Application.targetFrameRate = 60;
 
         StartCoroutine(OnGroundChecker());
+    }
+
+    void StopIfOnGround()
+    {
+        if (onGround)
+            rb.velocity = new Vector2(0, rb.velocity.y);
     }
 
     /* Updates number of glasses found
@@ -185,8 +191,9 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator Jump()
     {
-        while (!onGround || disabled)
-            yield return null;
+        if (!onGround || disabled)
+            while (true)
+                yield return null;
 
         jumpSound.audioSource.Play();
         pressingJumpButton = true;
@@ -223,6 +230,7 @@ public class PlayerController : MonoBehaviour
                 if (onGround)
                 {
                     animator.SetBool("Jumping", false);
+                    rb.velocity = new Vector2(0, rb.velocity.y);
                     transform.position += Vector3.up * GROUND_TOUCH_ADJUSTMENT;
                 }
             }

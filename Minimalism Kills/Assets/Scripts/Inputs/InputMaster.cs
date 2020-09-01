@@ -213,6 +213,14 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """"
+                },
+                {
+                    ""name"": ""Exit"",
+                    ""type"": ""Button"",
+                    ""id"": ""34de0274-bc97-4335-af91-03df8891cd51"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
                 }
             ],
             ""bindings"": [
@@ -235,6 +243,17 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Reset Level"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a3d36efe-62d5-44d9-8824-2d18554f732f"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Exit"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -282,6 +301,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
         // GameController
         m_GameController = asset.FindActionMap("GameController", throwIfNotFound: true);
         m_GameController_ResetLevel = m_GameController.FindAction("Reset Level", throwIfNotFound: true);
+        m_GameController_Exit = m_GameController.FindAction("Exit", throwIfNotFound: true);
         // Text
         m_Text = asset.FindActionMap("Text", throwIfNotFound: true);
         m_Text_Advance = m_Text.FindAction("Advance", throwIfNotFound: true);
@@ -425,11 +445,13 @@ public class @InputMaster : IInputActionCollection, IDisposable
     private readonly InputActionMap m_GameController;
     private IGameControllerActions m_GameControllerActionsCallbackInterface;
     private readonly InputAction m_GameController_ResetLevel;
+    private readonly InputAction m_GameController_Exit;
     public struct GameControllerActions
     {
         private @InputMaster m_Wrapper;
         public GameControllerActions(@InputMaster wrapper) { m_Wrapper = wrapper; }
         public InputAction @ResetLevel => m_Wrapper.m_GameController_ResetLevel;
+        public InputAction @Exit => m_Wrapper.m_GameController_Exit;
         public InputActionMap Get() { return m_Wrapper.m_GameController; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -442,6 +464,9 @@ public class @InputMaster : IInputActionCollection, IDisposable
                 @ResetLevel.started -= m_Wrapper.m_GameControllerActionsCallbackInterface.OnResetLevel;
                 @ResetLevel.performed -= m_Wrapper.m_GameControllerActionsCallbackInterface.OnResetLevel;
                 @ResetLevel.canceled -= m_Wrapper.m_GameControllerActionsCallbackInterface.OnResetLevel;
+                @Exit.started -= m_Wrapper.m_GameControllerActionsCallbackInterface.OnExit;
+                @Exit.performed -= m_Wrapper.m_GameControllerActionsCallbackInterface.OnExit;
+                @Exit.canceled -= m_Wrapper.m_GameControllerActionsCallbackInterface.OnExit;
             }
             m_Wrapper.m_GameControllerActionsCallbackInterface = instance;
             if (instance != null)
@@ -449,6 +474,9 @@ public class @InputMaster : IInputActionCollection, IDisposable
                 @ResetLevel.started += instance.OnResetLevel;
                 @ResetLevel.performed += instance.OnResetLevel;
                 @ResetLevel.canceled += instance.OnResetLevel;
+                @Exit.started += instance.OnExit;
+                @Exit.performed += instance.OnExit;
+                @Exit.canceled += instance.OnExit;
             }
         }
     }
@@ -500,6 +528,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
     public interface IGameControllerActions
     {
         void OnResetLevel(InputAction.CallbackContext context);
+        void OnExit(InputAction.CallbackContext context);
     }
     public interface ITextActions
     {

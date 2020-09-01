@@ -10,6 +10,7 @@ public class LevelController : MonoBehaviour
     {
         levelController = new InputMaster();
         levelController.GameController.ResetLevel.performed += ctx => ResetLevel();
+        levelController.GameController.Exit.performed += ctx => BackToTitle();
         levelController.GameController.Enable();
     }
 
@@ -24,5 +25,14 @@ public class LevelController : MonoBehaviour
             GlobalVariables.coinsFound = 0;
             FindObjectOfType<NextSceneFader>().Restart();
         }
+    }
+
+    public void BackToTitle()
+    {
+        GlobalVariables.coinsFound = 0;
+        GlobalVariables.numDeaths = 0;
+        GlobalVariables.numMins = 0;
+        GlobalVariables.numSecs = 0;
+        FindObjectOfType<NextSceneFader>().FadeToNextScene("Title", true);
     }
 }
