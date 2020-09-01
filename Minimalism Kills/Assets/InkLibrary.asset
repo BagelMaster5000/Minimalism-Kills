@@ -12,22 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc234ab28a32840f5adfb84a075bc023, type: 3}
   m_Name: InkLibrary
   m_EditorClassIdentifier: 
-  inkLibrary:
-  - compileAutomatically: 0
-    inkAsset: {fileID: 102900000, guid: 3bbb9d3dfd40b2d49925a88ed528236a, type: 3}
-    jsonAssetDirectory: {fileID: 0}
-    jsonAsset: {fileID: 4900000, guid: ed656eb271806e44ebcc42185d663be9, type: 3}
-  - compileAutomatically: 0
-    inkAsset: {fileID: 102900000, guid: 653bcfda8e0adcf498463e01113ac3ce, type: 3}
-    jsonAssetDirectory: {fileID: 0}
-    jsonAsset: {fileID: 4900000, guid: f19ebb19799a677469c1730b28c47904, type: 3}
-  - compileAutomatically: 0
-    inkAsset: {fileID: 102900000, guid: 27b11ba274523264e9da9e734f440f6f, type: 3}
-    jsonAssetDirectory: {fileID: 0}
-    jsonAsset: {fileID: 4900000, guid: e0e670223d5ff3449838b8262f583a20, type: 3}
-  - compileAutomatically: 0
-    inkAsset: {fileID: 102900000, guid: 0daa5cbbd76fa434a8afa74907bc3679, type: 3}
-    jsonAssetDirectory: {fileID: 0}
-    jsonAsset: {fileID: 4900000, guid: d02059f223f11fe41a7be67dd2e0fd6b, type: 3}
+  inkLibrary: []
   pendingCompilationStack: []
   compilationStack: []
